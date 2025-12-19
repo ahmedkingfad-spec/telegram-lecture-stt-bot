@@ -4,8 +4,9 @@ import requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
-BOT_TOKEN = os.getenv("8461952751:AAG3QydI6S8JI_bu7hvVgq1uY-ml8xBrMWU")
-LEMONFOX_API_KEY = os.getenv("c6L3x7pNNisuU8hBXAORdsNAUGdXijeI")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+LEMONFOX_API_KEY = os.getenv("LEMONFOX_API_KEY")
+
 LEMONFOX_URL = "https://api.lemonfox.ai/v1/audio/transcriptions"
 
 last_text = {}
@@ -115,3 +116,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
