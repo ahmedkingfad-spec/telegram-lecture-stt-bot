@@ -1,7 +1,7 @@
 # Telegram Lecture Speech-to-Text Bot 🎓🎙️
 
 بوت تليجرام لتحويل المحاضرات الصوتية إلى نص باستخدام Lemonfox API  
-مع تصحيح إملائي محافظ وتقسيم النص لأجزاء.
+مع تصحيح إملائي محافظ وتقسيم المحاضرة لأجزاء.
 
 ## Commands
 - /start
@@ -12,14 +12,13 @@
 - Same Lemonfox API only
 - No meaning change
 - Auto split long lectures
+- Free Render workaround
 - Ready 24/7
-- 
-- ## Environment Variables
+
+## Environment Variables
 - BOT_TOKEN
 - LEMONFOX_API_KEY
-
 
 ## Run locally
 pip install -r requirements.txt
 python bot.py
-
