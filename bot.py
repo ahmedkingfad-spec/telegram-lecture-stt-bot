@@ -1,18 +1,35 @@
 import os
 import re
 import requests
+from threading import Thread
+from flask import Flask
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    MessageHandler,
+    ContextTypes,
+    filters
+)
 
+# ================== CONFIG ==================
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 LEMONFOX_API_KEY = os.getenv("LEMONFOX_API_KEY")
-
 LEMONFOX_URL = "https://api.lemonfox.ai/v1/audio/transcriptions"
 
 last_text = {}
 
-# -------- Helpers --------
+# ================== FLASK KEEP ALIVE ==================
+app_flask = Flask(__name__)
 
+@app_flask.route("/")
+def home():
+    return "Bot is alive"
+
+def run_flask():
+    app_flask.run(host="0.0.0.0", port=10000)
+
+# ================== HELPERS ==================
 def split_text(text, max_length=3500):
     parts = []
     while len(text) > max_length:
@@ -26,7 +43,6 @@ def split_text(text, max_length=3500):
         parts.append(text)
     return parts
 
-
 def safe_correct(text: str) -> str:
     text = re.sub(r"\s+", " ", text)
     text = re.sub(r"\bان\b", "إن", text)
@@ -36,15 +52,13 @@ def safe_correct(text: str) -> str:
     text = text.replace(" ,", ",").replace(" .", ".")
     return text.strip()
 
-# -------- Commands --------
-
+# ================== COMMANDS ==================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "🎙️ ابعت محاضرة صوتية\n"
         "✍️ /correct = تصحيح إملائي فقط\n"
-        "📚 النص بيتقسم تلقائي"
+        "📚 المحاضرة بتتبعت على أجزاء"
     )
-
 
 async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file = None
@@ -64,9 +78,7 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
     with open(audio_path, "rb") as f:
         response = requests.post(
             LEMONFOX_URL,
-            headers={
-                "Authorization": f"Bearer {LEMONFOX_API_KEY}"
-            },
+            headers={"Authorization": f"Bearer {LEMONFOX_API_KEY}"},
             files={"file": f},
             data={"language": "arabic"}
         )
@@ -86,7 +98,6 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"📚 المحاضرة – جزء {i}/{len(parts)}:\n\n{part}"
         )
 
-
 async def correct(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
 
@@ -102,18 +113,17 @@ async def correct(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"✍️ تصحيح إملائي – جزء {i}/{len(parts)}:\n\n{part}"
         )
 
-# -------- Run --------
-
+# ================== RUN ==================
 def main():
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    Thread(target=run_flask).start()
 
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("correct", correct))
     app.add_handler(MessageHandler(filters.VOICE | filters.AUDIO, handle_audio))
 
-    print("🤖 Bot running 24/7...")
+    print("🤖 Bot running with HTTP keep-alive...")
     app.run_polling()
 
 if __name__ == "__main__":
     main()
-
