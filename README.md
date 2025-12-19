@@ -13,11 +13,13 @@
 - No meaning change
 - Auto split long lectures
 - Ready 24/7
+- 
+- ## Environment Variables
+- BOT_TOKEN
+- LEMONFOX_API_KEY
 
-## Environment Variables
-- 8461952751:AAG3QydI6S8JI_bu7hvVgq1uY-ml8xBrMWU
-- c6L3x7pNNisuU8hBXAORdsNAUGdXijeI
 
 ## Run locally
 pip install -r requirements.txt
 python bot.py
+
